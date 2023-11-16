@@ -23,6 +23,6 @@ router.delete("/:id", checkAuth, eliminarMesa);
 
 router.post("/profesores", checkAuth, buscarProfesor);
 router.post("/profesores/:id", checkAuth, agregarProfesor);
-router.delete("/profesores/:id", checkAuth, eliminarProfesor);
+router.post("/eliminar-profesores/:id", checkAuth, eliminarProfesor);
 
 export default router;

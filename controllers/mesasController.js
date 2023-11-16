@@ -2,13 +2,6 @@ import Mesa from "../models/Mesas.js";
 import Usuario from "../models/Usuario.js";
 
 const crearMesa = async (req, res) => {
-  // Verificar si el usuario tiene el rol de "admin"
-  if (req.usuario.rol !== "admin") {
-    return res
-      .status(403)
-      .json({ mensaje: "No tienes permiso para crear mesas." });
-  }
-
   const mesa = new Mesa(req.body);
   mesa.creador = req.usuario._id;
 
@@ -39,7 +32,6 @@ const obtenerMesas = async (req, res) => {
 
 const obtenerMesa = async (req, res) => {
   // Verificar si el usuario tiene el rol de "admin"
- 
 
   try {
     // Obtener la mesa solo si el usuario es un admin
@@ -60,19 +52,11 @@ const obtenerMesa = async (req, res) => {
 };
 
 const editarMesa = async (req, res) => {
-  if (req.usuario.rol !== "admin") {
-    return res
-      .status(403)
-      .json({ mensaje: "No tienes permiso para actualizar esta mesa." });
-  }
-
   const mesa = await Mesa.findById(req.params.id);
 
   if (!mesa) {
     return res.status(404).json({ msg: "Mesa no encontrada" });
   }
-
-  res.json(mesa);
 
   mesa.asignatura = req.body.asignatura || mesa.asignatura;
   mesa.aula = req.body.aula || mesa.aula;
@@ -89,11 +73,11 @@ const editarMesa = async (req, res) => {
 };
 
 const eliminarMesa = async (req, res) => {
-  if (req.usuario.rol !== "admin") {
-    return res
-      .status(403)
-      .json({ mensaje: "No tienes permiso para actualizar esta mesa." });
-  }
+  // if (req.usuario.rol !== "admin") {
+  //   return res
+  //     .status(403)
+  //     .json({ mensaje: "No tienes permiso para actualizar esta mesa." });
+  // }
 
   const mesa = await Mesa.findById(req.params.id);
 
@@ -145,7 +129,15 @@ const agregarProfesor = async (req, res) => {
   res.json({ msg: "Profesor Agregado" });
 };
 
-const eliminarProfesor = async (req, res) => {};
+const eliminarProfesor = async (req, res) => {
+  const mesa = await Mesa.findById(req.params.id);
+  const { email } = req.body;
+
+  mesa.profesor.pull(req.body.id);
+
+  await mesa.save();
+  res.json({ msg: "Profesor Eliminado" });
+};
 export {
   crearMesa,
   obtenerMesa,

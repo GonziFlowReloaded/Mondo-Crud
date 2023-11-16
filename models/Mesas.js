@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const mesaSchema = mongoose.Schema(
   {
+    llamado: {
+      type: String,
+      enum: ["1er llamado", "2do llamado"], // Specify the allowed enum values
+    },
     asignatura: {
       type: String,
       required: true,
@@ -15,6 +19,9 @@ const mesaSchema = mongoose.Schema(
         ref: "Usuario",
       },
     ],
+    categoria: {
+      type: String,
+    },
     fecha: {
       type: Date,
     },
@@ -28,16 +35,9 @@ const mesaSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",
     },
-    categoria: {
-      type: String,
-    },
-    llamado: {
-      type: String,
-     
-    },
+
     modalidad: {
       type: String,
-    
     },
   },
   {
