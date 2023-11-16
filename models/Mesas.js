@@ -4,7 +4,7 @@ const mesaSchema = mongoose.Schema(
   {
     asignatura: {
       type: String,
-      require: true,
+      required: true,
     },
     aula: {
       type: String,
@@ -19,15 +19,25 @@ const mesaSchema = mongoose.Schema(
       type: Date,
     },
     hora: {
-      type: String, 
+      type: String,
     },
-
     alumnos: {
       type: String,
     },
     creador: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",
+    },
+    categoria: {
+      type: String,
+    },
+    llamado: {
+      type: String,
+     
+    },
+    modalidad: {
+      type: String,
+    
     },
   },
   {

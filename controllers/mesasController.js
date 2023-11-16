@@ -22,16 +22,14 @@ const crearMesa = async (req, res) => {
 };
 
 const obtenerMesas = async (req, res) => {
-  // Verificar si el usuario tiene el rol de "admin"
-  if (req.usuario.rol !== "admin") {
-    return res
-      .status(403)
-      .json({ msg: "No tienes permiso para obtener las mesas." });
-  }
-
   try {
-    // Obtener las mesas solo si el usuario es un admin
-    const mesas = await Mesa.find();
+    // Obtener las mesas solo si el usuario es un admin o el profesor autenticado
+    const mesas = await Mesa.find({
+      $or: [
+        { profesor: req.usuario }, // Buscar mesas donde el profesor es el autenticado
+        { creador: req.usuario }, // Buscar mesas creadas por el profesor autenticado
+      ],
+    });
     res.json({ mesas });
   } catch (error) {
     console.log(error);
@@ -41,15 +39,14 @@ const obtenerMesas = async (req, res) => {
 
 const obtenerMesa = async (req, res) => {
   // Verificar si el usuario tiene el rol de "admin"
-  if (req.usuario.rol !== "admin") {
-    return res
-      .status(403)
-      .json({ mensaje: "No tienes permiso para obtener esta mesa." });
-  }
+ 
 
   try {
     // Obtener la mesa solo si el usuario es un admin
-    const mesa = await Mesa.findById(req.params.id);
+    const mesa = await Mesa.findById(req.params.id).populate(
+      "profesor",
+      "nombre email"
+    );
 
     if (!mesa) {
       return res.status(404).json({ msg: "Mesa no encontrada" });
@@ -104,30 +101,49 @@ const eliminarMesa = async (req, res) => {
     return res.status(404).json({ msg: "Mesa no encontrada" });
   }
 
-
   try {
-    await mesa.deleteOne()
-    res.json({msg: "Mesa eliminada"})
+    await mesa.deleteOne();
+    res.json({ msg: "Mesa eliminada" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
 const buscarProfesor = async (req, res) => {
-  const {dni}=req.body
+  console.log(req.body);
 
-  const usuario= await Usuario.findOne({dni})
+  const { email } = req.body;
 
-  if(!usuario){
-    const error= new Error("Usuario no encontrado")
-    return res.status(404).json({msg:error.message})
+  const usuario = await Usuario.findOne({ email }).select(
+    "-confirmado -createdAt -password -token -updatedAt -__v"
+  );
+
+  if (!usuario) {
+    const error = new Error("Usuario no encontrado");
+    return res.status(404).json({ msg: error.message });
   }
 
-  res.json(usuario)
-
+  res.json(usuario);
 };
 
-const agregarProfesor = async (req, res) => {};
+const agregarProfesor = async (req, res) => {
+  const mesa = await Mesa.findById(req.params.id);
+  const { email } = req.body;
+
+  const usuario = await Usuario.findOne({ email }).select(
+    "-confirmado -createdAt -password -token -updatedAt -__v"
+  );
+
+  if (!usuario) {
+    const error = new Error("Usuario no encontrado");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  mesa.profesor.push(usuario._id);
+
+  await mesa.save();
+  res.json({ msg: "Profesor Agregado" });
+};
 
 const eliminarProfesor = async (req, res) => {};
 export {

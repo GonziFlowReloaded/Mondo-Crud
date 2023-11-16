@@ -4,34 +4,37 @@ const usuarioSchema = mongoose.Schema(
   {
     nombre: {
       type: String,
-      require: true,
+
       trim: true,
     },
     password: {
       type: String,
-      require: true,
+
       trim: true,
     },
-    dni: {
+    email: {
       type: String,
-      require: true,
+
       trim: true,
       unique: true,
     },
+
     token: {
       type: String,
     },
-    confirmado:{
-      type:Boolean,
-      default:false
+    confirmado: {
+      type: Boolean,
+      default: false,
     },
     rol: {
       type: String,
       enum: ["admin", "profesor"],
       default: "profesor",
     },
-    
-  
+    alerta: {
+      type: String,
+      enum: ["gmail", "discord", "telegram"],
+    },
   },
   {
     timestamps: true,
